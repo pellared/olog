@@ -1,6 +1,7 @@
 # olog - OpenTelemetry Logging Facade
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/pellared/olog.svg)](https://pkg.go.dev/github.com/pellared/olog)
+[![Keep a Changelog](https://img.shields.io/badge/changelog-Keep%20a%20Changelog-%23E05735)](CHANGELOG.md)
 [![go.mod](https://img.shields.io/github/go-mod/go-version/pellared/olog)](go.mod)
 [![LICENSE](https://img.shields.io/github/license/pellared/olog)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pellared/olog)](https://goreportcard.com/report/github.com/pellared/olog)
@@ -47,3 +48,7 @@ This module follows several key design principles:
 4. **Compatibility**: Uses OpenTelemetry Logs API as the backend for full compatibility
 5. **Composability**: Supports logger composition through `With()`
 6. **Familiar Patterns**: Similar to `slog` design patterns that Go developers already know
+
+## License
+
+**olog** is licensed under the terms of the [MIT license](LICENSE).
