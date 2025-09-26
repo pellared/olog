@@ -25,6 +25,7 @@ func TestLogger_BasicOperations(t *testing.T) {
 	ctx := t.Context()
 
 	// Test basic logging methods
+	logger.Trace(ctx, "trace message", "key", "value")
 	logger.Debug(ctx, "debug message", "key", "value")
 	logger.Info(ctx, "info message", "key", "value")
 	logger.Warn(ctx, "warn message", "key", "value")
@@ -37,6 +38,14 @@ func TestLogger_BasicOperations(t *testing.T) {
 		logtest.Scope{
 			Name: "test",
 		}: {
+			logtest.Record{
+				Context:  ctx,
+				Severity: log.SeverityTrace,
+				Body:     log.StringValue("trace message"),
+				Attributes: []log.KeyValue{
+					log.String("key", "value"),
+				},
+			},
 			logtest.Record{
 				Context:  ctx,
 				Severity: log.SeverityDebug,
@@ -106,6 +115,9 @@ func TestLogger_EnabledBasic(t *testing.T) {
 	ctx := t.Context()
 
 	// Test enabled methods - should work with all levels
+	if !logger.TraceEnabled(ctx) {
+		t.Error("expected trace level to be enabled")
+	}
 	if !logger.DebugEnabled(ctx) {
 		t.Error("expected debug level to be enabled")
 	}
@@ -632,6 +644,15 @@ func TestLogger_AttrMethods(t *testing.T) {
 		message  string
 		number   int64
 	}{
+		{
+			name: "TraceAttr",
+			logFunc: func() {
+				logger.TraceAttr(ctx, "trace message", log.String("level", "trace"), log.Int64("number", 0))
+			},
+			severity: log.SeverityTrace,
+			message:  "trace message",
+			number:   0,
+		},
 		{
 			name: "DebugAttr",
 			logFunc: func() {
