@@ -10,7 +10,7 @@ as well as to [Module version numbering](https://go.dev/doc/modules/version-numb
 
 ### Changed
 
-- Minimum required Go version is now Go 1.24.
+- Minimum required Go version is now Go 1.24 instead of Go 1.25.1.
 
 ## [0.0.1](https://github.com/pellared/olog/releases/tag/v0.0.1) - 2025-09-26
 
