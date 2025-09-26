@@ -16,6 +16,9 @@ The `olog` package provides an ergonomic frontend API for OpenTelemetry structur
 
 It is designed to provide a more user-friendly interface while using the OpenTelemetry Logs API as the backend.
 
+It addresses the concerns raised in
+[opentelemetry-specification#4661](https://github.com/open-telemetry/opentelemetry-specification/issues/4661).
+
 ### Features
 
 1. **Simple API**: Easy-to-use methods like `Debug()`, `Info()`, `Warn()`, `Error()` similar to popular logging libraries
@@ -27,19 +30,6 @@ It is designed to provide a more user-friendly interface while using the OpenTel
 7. **Performance oriented**: Level-specific enabled checks to avoid expensive operations
 8. **Automatic package detection**: Auto-detects caller's package name when logger name is not specified
 9. **Type safety**: Support for both argument-based and strongly-typed attribute APIs
-
-## Background
-
-This module directly addresses the concerns raised in
-[opentelemetry-specification#4661](https://github.com/open-telemetry/opentelemetry-specification/issues/4661):
-
-1. **User-friendly API**: Provides simple methods like `Info()`, `Debug()` instead of complex record construction
-2. **Performance**: Includes level-specific enabled methods (`DebugEnabled()`, `InfoEnabled()`, etc.) that are ergonomic and efficient
-3. **Level support**: Built-in support for common logging levels with both generic and specific enabled checks
-4. **Structured logging focus**: Emphasizes key-value pairs for structured data with both argument-based and typed APIs
-5. **Ergonomic design**: Follows familiar patterns from `slog` and other popular logging libraries
-6. **Zero-configuration**: Automatic package name detection means less boilerplate setup code
-7. **Type safety**: Optional strongly-typed attribute API for better performance and compile-time safety
 
 ## Contributing
 
