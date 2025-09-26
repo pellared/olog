@@ -13,7 +13,7 @@
     },
     "go.useLanguageServer": true,
     "gopls": {
-        "formatting.local": "github.com/golang-templates/seed",
+        "formatting.local": "github.com/pellared/olog",
         "formatting.gofumpt": true
     },
     "go.lintTool": "golangci-lint",

@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 .PHONY: all
 all: ## build pipeline
-all: mod gen build spell lint test
+all: mod gen spell lint test
 
 .PHONY: precommit
 precommit: ## validate the branch before commit
@@ -37,10 +37,6 @@ mod: ## go mod tidy
 gen: ## go generate
 	go generate ./...
 
-.PHONY: build
-build: ## goreleaser build
-	go tool goreleaser build --clean --single-target --snapshot
-
 .PHONY: spell
 spell: ## misspell
 	go tool misspell -error -locale=US -w **.md
@@ -62,7 +58,6 @@ endif
 .PHONY: test
 test: ## go test
 	go test $(RACE_OPT) -covermode=atomic -coverprofile=coverage.out -coverpkg=./... ./...
-	go tool cover -html=coverage.out -o coverage.html
 
 .PHONY: diff
 diff: ## git diff

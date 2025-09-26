@@ -57,6 +57,10 @@ linters:
     generated: lax
     presets:
       - std-error-handling
+    rules:
+      - linters:
+          - funlen
+        path: _test\.go
 formatters:
   enable:
     - gofumpt
@@ -64,4 +68,4 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/golang-templates/seed
+        - github.com/pellared/olog
