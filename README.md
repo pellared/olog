@@ -48,3 +48,7 @@ This module follows several key design principles:
 4. **Compatibility**: Uses OpenTelemetry Logs API as the backend for full compatibility
 5. **Composability**: Supports logger composition through `With()`
 6. **Familiar Patterns**: Similar to `slog` design patterns that Go developers already know
+
+## License
+
+**olog** is licensed under the terms of the [MIT license](LICENSE).
