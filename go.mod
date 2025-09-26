@@ -1,6 +1,6 @@
 module github.com/pellared/olog
 
-go 1.25.1
+go 1.24.0
 
 tool (
 	github.com/client9/misspell/cmd/misspell
