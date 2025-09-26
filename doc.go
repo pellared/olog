@@ -13,6 +13,7 @@ The simplest way to use olog is by creating a logger instance:
 
 	import (
 		"context"
+		"go.opentelemetry.io/otel/log"
 		"go.opentelemetry.io/otel/log/global"
 		"github.com/pellared/olog"
 	)
@@ -23,49 +24,57 @@ The simplest way to use olog is by creating a logger instance:
 		Name:     "myapp",
 	})
 
-	logger.Trace(ctx, "detailed tracing", "trace_id", "abc123")
-	logger.Info(ctx, "application started", "version", "1.0.0", "port", 8080)
-	logger.Warn(ctx, "deprecated feature used", "feature", "old-api")
-	logger.Error(ctx, "failed to connect", "host", "db.example.com")
-	logger.Debug(ctx, "processing request", "method", "GET", "path", "/api/users")
+	logger.TraceAttr(ctx, "detailed tracing", log.String("trace_id", "abc123"))
+	logger.InfoAttr(ctx, "application started",
+		log.String("version", "1.0.0"),
+		log.Int("port", 8080))
+	logger.WarnAttr(ctx, "deprecated feature used", log.String("feature", "old-api"))
+	logger.ErrorAttr(ctx, "failed to connect", log.String("host", "db.example.com"))
+	logger.DebugAttr(ctx, "processing request",
+		log.String("method", "GET"),
+		log.String("path", "/api/users"))
 
 	// Check if logging is enabled before expensive operations
 	if logger.DebugEnabled(ctx) {
 		expensiveData := computeExpensiveDebugInfo()
-		logger.Debug(ctx, "debug info", "data", expensiveData)
+		logger.DebugAttr(ctx, "debug info", log.String("data", expensiveData))
 	}
 
 # Logger Composition
 
-Use With to create loggers with common attributes:
+Use WithAttr to create loggers with common attributes:
 
-	serviceLogger := logger.With("service", "user-service", "version", "2.1.0")
-	serviceLogger.Info(ctx, "user created", "user_id", 12345)
+	serviceLogger := logger.WithAttr(
+		log.String("service", "user-service"),
+		log.String("version", "2.1.0"))
+	serviceLogger.InfoAttr(ctx, "user created", log.Int("user_id", 12345))
 
-	requestLogger := serviceLogger.With("request_id", "req-789")
-	requestLogger.Info(ctx, "processing request", "endpoint", "/api/users")
+	requestLogger := serviceLogger.WithAttr(log.String("request_id", "req-789"))
+	requestLogger.InfoAttr(ctx, "processing request", log.String("endpoint", "/api/users"))
 
 Use structured attributes to organize your logs:
 
-	httpLogger := logger.With("component", "http")
-	httpLogger.Info(ctx, "request", "method", "POST", "status", 201)
+	httpLogger := logger.WithAttr(log.String("component", "http"))
+	httpLogger.InfoAttr(ctx, "request",
+		log.String("method", "POST"),
+		log.Int("status", 201))
 	// Logs with component="http" and the specified attributes
 
 # Event Logging
 
 Log structured events following semantic conventions:
 
-	logger.Event(ctx, "user.login",
-		"user.id", "12345",
-		"user.email", "user@example.com",
-		"session.id", "sess-abc123")
+	logger.EventAttr(ctx, "user.login",
+		log.String("user.id", "12345"),
+		log.String("user.email", "user@example.com"),
+		log.String("session.id", "sess-abc123"))
 
 # Performance
 
 olog is designed with performance in mind:
 
   - Use TraceEnabled, DebugEnabled, InfoEnabled, WarnEnabled, and ErrorEnabled checks to avoid expensive operations when logging is disabled
-  - Logger composition with With pre-processes common attributes
+  - Logger composition with WithAttr pre-processes common attributes
   - Direct integration with OpenTelemetry Logs API avoids unnecessary conversions
 
 # Design Goals
