@@ -34,9 +34,9 @@ type Options struct {
 // OpenTelemetry Logs API as the backend.
 //
 // The Logger offers two styles of API:
-//   - Argument-based methods (Debug, Info, Warn, Error, Log, Event, With) that accept
+//   - Argument-based methods (Trace, Debug, Info, Warn, Error, Log, Event, With) that accept
 //     alternating key-value pairs as ...any arguments
-//   - Attribute-based methods (DebugAttr, InfoAttr, WarnAttr, ErrorAttr, LogAttr,
+//   - Attribute-based methods (TraceAttr, DebugAttr, InfoAttr, WarnAttr, ErrorAttr, LogAttr,
 //     EventAttr, WithAttr) that accept strongly-typed log.KeyValue attributes
 //
 // The attribute-based methods provide better type safety and can offer better
@@ -143,6 +143,13 @@ func New(options Options) *Logger {
 	}
 }
 
+// TraceEnabled reports whether the logger emits trace-level log records.
+func (l *Logger) TraceEnabled(ctx context.Context) bool {
+	return l.Enabled(ctx, log.EnabledParameters{
+		Severity: log.SeverityTrace,
+	})
+}
+
 // DebugEnabled reports whether the logger emits debug-level log records.
 func (l *Logger) DebugEnabled(ctx context.Context) bool {
 	return l.Enabled(ctx, log.EnabledParameters{
@@ -171,29 +178,34 @@ func (l *Logger) ErrorEnabled(ctx context.Context) bool {
 	})
 }
 
+// Trace logs a trace message with the provided attributes.
+func (l *Logger) Trace(ctx context.Context, msg string, args ...any) {
+	l.log(ctx, log.SeverityTrace, msg, args)
+}
+
 // Debug logs a debug message with optional key-value pairs.
 func (l *Logger) Debug(ctx context.Context, msg string, args ...any) {
-	l.log(ctx, log.SeverityDebug, msg, args...)
+	l.log(ctx, log.SeverityDebug, msg, args)
 }
 
 // Info logs an info message with optional key-value pairs.
 func (l *Logger) Info(ctx context.Context, msg string, args ...any) {
-	l.log(ctx, log.SeverityInfo, msg, args...)
+	l.log(ctx, log.SeverityInfo, msg, args)
 }
 
 // Warn logs a warning message with optional key-value pairs.
 func (l *Logger) Warn(ctx context.Context, msg string, args ...any) {
-	l.log(ctx, log.SeverityWarn, msg, args...)
+	l.log(ctx, log.SeverityWarn, msg, args)
 }
 
 // Error logs an error message with optional key-value pairs.
 func (l *Logger) Error(ctx context.Context, msg string, args ...any) {
-	l.log(ctx, log.SeverityError, msg, args...)
+	l.log(ctx, log.SeverityError, msg, args)
 }
 
 // Log logs a message at the specified level with optional key-value pairs.
 func (l *Logger) Log(ctx context.Context, level log.Severity, msg string, args ...any) {
-	l.log(ctx, level, msg, args...)
+	l.log(ctx, level, msg, args)
 }
 
 // Event logs an event with the specified name and optional key-value pairs.
@@ -207,29 +219,34 @@ func (l *Logger) Event(ctx context.Context, name string, args ...any) {
 	l.Emit(ctx, record)
 }
 
+// TraceAttr logs a trace message with the provided attributes.
+func (l *Logger) TraceAttr(ctx context.Context, msg string, attrs ...log.KeyValue) {
+	l.logAttr(ctx, log.SeverityTrace, msg, attrs)
+}
+
 // DebugAttr logs a debug message with the provided attributes.
 func (l *Logger) DebugAttr(ctx context.Context, msg string, attrs ...log.KeyValue) {
-	l.logAttr(ctx, log.SeverityDebug, msg, attrs...)
+	l.logAttr(ctx, log.SeverityDebug, msg, attrs)
 }
 
 // InfoAttr logs an info message with the provided attributes.
 func (l *Logger) InfoAttr(ctx context.Context, msg string, attrs ...log.KeyValue) {
-	l.logAttr(ctx, log.SeverityInfo, msg, attrs...)
+	l.logAttr(ctx, log.SeverityInfo, msg, attrs)
 }
 
 // WarnAttr logs a warning message with the provided attributes.
 func (l *Logger) WarnAttr(ctx context.Context, msg string, attrs ...log.KeyValue) {
-	l.logAttr(ctx, log.SeverityWarn, msg, attrs...)
+	l.logAttr(ctx, log.SeverityWarn, msg, attrs)
 }
 
 // ErrorAttr logs an error message with the provided attributes.
 func (l *Logger) ErrorAttr(ctx context.Context, msg string, attrs ...log.KeyValue) {
-	l.logAttr(ctx, log.SeverityError, msg, attrs...)
+	l.logAttr(ctx, log.SeverityError, msg, attrs)
 }
 
 // LogAttr logs a message at the specified level with the provided attributes.
 func (l *Logger) LogAttr(ctx context.Context, level log.Severity, msg string, attrs ...log.KeyValue) {
-	l.logAttr(ctx, level, msg, attrs...)
+	l.logAttr(ctx, level, msg, attrs)
 }
 
 // EventAttr logs an event with the specified name and the provided attributes.
@@ -273,7 +290,7 @@ func (l *Logger) With(args ...any) *Logger {
 }
 
 // log is the internal logging method that handles the common logging logic.
-func (l *Logger) log(ctx context.Context, level log.Severity, msg string, args ...any) {
+func (l *Logger) log(ctx context.Context, level log.Severity, msg string, args []any) {
 	var record log.Record
 	record.SetBody(log.StringValue(msg))
 	record.SetTimestamp(time.Now())
@@ -326,7 +343,7 @@ func addArgsAsAttributes(record *log.Record, args []any) {
 }
 
 // logAttr is the internal logging method that handles logging with log.KeyValue attributes.
-func (l *Logger) logAttr(ctx context.Context, level log.Severity, msg string, attrs ...log.KeyValue) {
+func (l *Logger) logAttr(ctx context.Context, level log.Severity, msg string, attrs []log.KeyValue) {
 	var record log.Record
 	record.SetBody(log.StringValue(msg))
 	record.SetTimestamp(time.Now())
