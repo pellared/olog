@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this library adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html),
 as well as to [Module version numbering](https://go.dev/doc/modules/version-numbers).
 
-## [Unreleased](https://github.com/pellared/olog/compare/v0.0.2...HEAD)
+## [Unreleased](https://github.com/pellared/olog/compare/v0.0.3...HEAD)
+
+## [0.0.3](https://github.com/pellared/olog/releases/tag/v0.0.3) - 2025-09-30
 
 ### Added
 
