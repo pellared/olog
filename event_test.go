@@ -198,7 +198,7 @@ func TestLogger_EventEnabled(t *testing.T) {
 	}
 }
 
-func TestLogger_BackwardCompatibleEvent(t *testing.T) {
+func TestLogger_EventWithSeverity(t *testing.T) {
 	recorder := logtest.NewRecorder()
 	logger := New(Options{
 		Provider: recorder,
@@ -207,8 +207,8 @@ func TestLogger_BackwardCompatibleEvent(t *testing.T) {
 
 	ctx := t.Context()
 
-	// Test that the original Event method still works and logs at Info level
-	logger.Event(ctx, "user.login", "user_id", "12345")
+	// Test that the Event method works with explicit severity level
+	logger.Event(ctx, log.SeverityInfo, "user.login", "user_id", "12345")
 
 	want := logtest.Recording{
 		logtest.Scope{
@@ -233,7 +233,7 @@ func TestLogger_BackwardCompatibleEvent(t *testing.T) {
 	}))
 }
 
-func TestLogger_BackwardCompatibleEventAttr(t *testing.T) {
+func TestLogger_EventAttrWithSeverity(t *testing.T) {
 	recorder := logtest.NewRecorder()
 	logger := New(Options{
 		Provider: recorder,
@@ -242,8 +242,8 @@ func TestLogger_BackwardCompatibleEventAttr(t *testing.T) {
 
 	ctx := t.Context()
 
-	// Test that the original EventAttr method still works and logs at Info level
-	logger.EventAttr(ctx, "user.login", log.String("user_id", "12345"))
+	// Test that the EventAttr method works with explicit severity level
+	logger.EventAttr(ctx, log.SeverityInfo, "user.login", log.String("user_id", "12345"))
 
 	want := logtest.Recording{
 		logtest.Scope{
@@ -336,4 +336,70 @@ func TestLogger_EventAttrWithPreConfiguredAttributes(t *testing.T) {
 		r.ObservedTimestamp = time.Time{}
 		return r
 	}))
+}
+
+func TestLogger_GenericEventMethods(t *testing.T) {
+	recorder := logtest.NewRecorder()
+	logger := New(Options{
+		Provider: recorder,
+		Name:     "test-logger",
+	})
+
+	ctx := t.Context()
+
+	// Test generic Event method with custom severity levels
+	tests := []struct {
+		name      string
+		logFunc   func()
+		severity  log.Severity
+		eventName string
+	}{
+		{
+			name:      "Event with Trace severity",
+			logFunc:   func() { logger.Event(ctx, log.SeverityTrace, "custom.trace.event", "key", "value") },
+			severity:  log.SeverityTrace,
+			eventName: "custom.trace.event",
+		},
+		{
+			name:      "Event with Warn2 severity",
+			logFunc:   func() { logger.Event(ctx, log.SeverityWarn2, "custom.warn2.event", "key", "value") },
+			severity:  log.SeverityWarn2,
+			eventName: "custom.warn2.event",
+		},
+		{
+			name:      "EventAttr with Error2 severity",
+			logFunc:   func() { logger.EventAttr(ctx, log.SeverityError2, "custom.error2.event", log.String("key", "value")) },
+			severity:  log.SeverityError2,
+			eventName: "custom.error2.event",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			recorder.Reset()
+			tt.logFunc()
+
+			want := logtest.Recording{
+				logtest.Scope{
+					Name: "test-logger",
+				}: {
+					logtest.Record{
+						Context:   ctx,
+						Severity:  tt.severity,
+						EventName: tt.eventName,
+						Attributes: []log.KeyValue{
+							log.String("key", "value"),
+						},
+					},
+				},
+			}
+
+			got := recorder.Result()
+			logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+				r.Timestamp = time.Time{}
+				r.ObservedTimestamp = time.Time{}
+				return r
+			}))
+		})
+	}
 }

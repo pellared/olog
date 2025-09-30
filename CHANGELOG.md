@@ -22,6 +22,11 @@ as well as to [Module version numbering](https://go.dev/doc/modules/version-numb
 - `Logger.ErrorEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs an error-level event with the specified name and the provided attributes.
 - `Logger.EventEnabled(ctx context.Context) bool` that reports whether the logger emits event log records.
 
+### Changed
+
+- **BREAKING:** `Logger.Event(ctx context.Context, name string, args ...any)` now requires a `level log.Severity` parameter: `Logger.Event(ctx context.Context, level log.Severity, name string, args ...any)`.
+- **BREAKING:** `Logger.EventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` now requires a `level log.Severity` parameter: `Logger.EventAttr(ctx context.Context, level log.Severity, name string, attrs ...log.KeyValue)`.
+
 ## [0.0.2](https://github.com/pellared/olog/releases/tag/v0.0.2) - 2025-09-26
 
 ### Changed

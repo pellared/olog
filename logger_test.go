@@ -31,7 +31,7 @@ func TestLogger_BasicOperations(t *testing.T) {
 	logger.Warn(ctx, "warn message", "key", "value")
 	logger.Error(ctx, "error message", "key", "value")
 	logger.Log(ctx, log.SeverityInfo, "log message", "key", "value")
-	logger.Event(ctx, "test.event", "key", "value")
+	logger.Event(ctx, log.SeverityInfo, "test.event", "key", "value")
 
 	// Verify all log records were captured
 	want := logtest.Recording{
@@ -302,7 +302,7 @@ func TestLogger_Event(t *testing.T) {
 	ctx := t.Context()
 
 	// Test Event method
-	logger.Event(ctx, "user.login", "user_id", "12345", "session", "abc123")
+	logger.Event(ctx, log.SeverityInfo, "user.login", "user_id", "12345", "session", "abc123")
 
 	want := logtest.Recording{
 		logtest.Scope{
@@ -767,7 +767,7 @@ func TestLogger_EventAttr(t *testing.T) {
 	ctx := t.Context()
 
 	// Test EventAttr method
-	logger.EventAttr(ctx, "user.login", log.String("user_id", "12345"), log.String("session", "abc123"))
+	logger.EventAttr(ctx, log.SeverityInfo, "user.login", log.String("user_id", "12345"), log.String("session", "abc123"))
 
 	want := logtest.Recording{
 		logtest.Scope{

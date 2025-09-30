@@ -242,10 +242,9 @@ func (l *Logger) ErrorEvent(ctx context.Context, name string, args ...any) {
 	l.logEvent(ctx, log.SeverityError, name, args)
 }
 
-// Event logs an event with the specified name and optional key-value pairs.
-// This method logs at Info level for backward compatibility.
-func (l *Logger) Event(ctx context.Context, name string, args ...any) {
-	l.logEvent(ctx, log.SeverityInfo, name, args)
+// Event logs an event at the specified level with the specified name and optional key-value pairs.
+func (l *Logger) Event(ctx context.Context, level log.Severity, name string, args ...any) {
+	l.logEvent(ctx, level, name, args)
 }
 
 // TraceAttr logs a trace message with the provided attributes.
@@ -303,10 +302,9 @@ func (l *Logger) ErrorEventAttr(ctx context.Context, name string, attrs ...log.K
 	l.logEventAttr(ctx, log.SeverityError, name, attrs)
 }
 
-// EventAttr logs an event with the specified name and the provided attributes.
-// This method logs at Info level for backward compatibility.
-func (l *Logger) EventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
-	l.logEventAttr(ctx, log.SeverityInfo, name, attrs)
+// EventAttr logs an event at the specified level with the specified name and the provided attributes.
+func (l *Logger) EventAttr(ctx context.Context, level log.Severity, name string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, level, name, attrs)
 }
 
 // WithAttr returns a new Logger that includes the given attributes in all log records.

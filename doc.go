@@ -74,9 +74,7 @@ Log structured events at different severity levels following semantic convention
 		log.String("client.ip", "192.168.1.100"),
 		log.Int("requests_per_minute", 150))
 
-	logger.ErrorEventAttr(ctx, "payment.failed",
-		log.String("payment.id", "pay-123"),
-		log.String("error", "insufficient_funds"))
+		logger.ErrorEventAttr(ctx, \"payment.failed\",\n\t\tlog.String(\"payment.id\", \"pay-123\"),\n\t\tlog.String(\"error\", \"insufficient_funds\"))\n\n\t// Use the generic Event method with custom severity\n\tlogger.Event(ctx, log.SeverityWarn2, \"custom.event\", \"key\", \"value\")
 
 # Performance
 

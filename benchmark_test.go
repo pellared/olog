@@ -42,7 +42,7 @@ func BenchmarkLogger_Event(b *testing.B) {
 	ctx := b.Context()
 
 	for i := 0; b.Loop(); i++ {
-		logger.Event(ctx, "test.event", "iteration", i, "data", "test")
+		logger.Event(ctx, log.SeverityInfo, "test.event", "iteration", i, "data", "test")
 	}
 }
 
@@ -83,7 +83,7 @@ func BenchmarkLogger_EventAttr(b *testing.B) {
 	ctx := b.Context()
 
 	for i := 0; b.Loop(); i++ {
-		logger.EventAttr(ctx, "test.event", log.Int64("iteration", int64(i)), log.String("data", "test"))
+		logger.EventAttr(ctx, log.SeverityInfo, "test.event", log.Int64("iteration", int64(i)), log.String("data", "test"))
 	}
 }
 
