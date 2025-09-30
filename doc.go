@@ -74,6 +74,29 @@ Log structured events at different severity levels following semantic convention
 		log.String("client.ip", "192.168.1.100"),
 		log.Int("requests_per_minute", 150))
 
+# API Variants
+
+olog provides two variants for emitting logs and events:
+
+  - Variadic methods (Trace, Debug, Info, Warn, Error, Log, TraceEvent, etc.) accept alternating key-value pairs as interface{} arguments for convenience
+  - Attr methods (TraceAttr, DebugAttr, InfoAttr, WarnAttr, ErrorAttr, LogAttr, TraceEventAttr, etc.) accept typed log.KeyValue attributes
+
+The Attr variants are recommended for production use as they provide:
+
+  - Better performance: no reflection or runtime type conversion overhead
+
+  - Type safety: compile-time validation of attribute types
+
+  - Better IDE support: autocompletion and type checking
+
+    // Variadic - convenient but less performant
+    logger.Info(ctx, "user created", "user_id", 12345, "email", "user@example.com")
+
+    // Attr - more performant and type-safe
+    logger.InfoAttr(ctx, "user created",
+    log.Int("user_id", 12345),
+    log.String("email", "user@example.com"))
+
 # Performance
 
 olog is designed with performance in mind:
@@ -81,6 +104,7 @@ olog is designed with performance in mind:
   - Use TraceEnabled, DebugEnabled, InfoEnabled, WarnEnabled, ErrorEnabled, and EventEnabled checks to avoid expensive operations when logging is disabled
   - Logger composition with WithAttr pre-processes common attributes
   - Direct integration with OpenTelemetry Logs API avoids unnecessary conversions
+  - Prefer Attr variants (TraceAttr, InfoAttr, etc.) over variadic methods for better performance and type safety
 
 # Design Goals
 
