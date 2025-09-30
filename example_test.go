@@ -157,19 +157,15 @@ func ExampleNew_withGlobalProvider() {
 func ExampleNew_minimal() {
 	ctx := context.Background()
 
-	// Minimal configuration - only name is required
-	logger := olog.New(olog.Options{
-		Name: "minimal-logger",
-	})
+	// Minimal configuration.
+	// The logger name is the caller's full package name.
+	logger := olog.New(olog.Options{})
 
 	logger.Info(ctx, "minimal logger example")
 }
 
 func ExampleLogger_withAttributes() {
 	ctx := context.Background()
-
-	// Import the log package for KeyValue construction
-	// import "go.opentelemetry.io/otel/log"
 
 	// Create a logger instance
 	logger := olog.New(olog.Options{Provider: global.GetLoggerProvider(), Name: "example"})
