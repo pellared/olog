@@ -301,31 +301,115 @@ func TestLogger_Event(t *testing.T) {
 
 	ctx := t.Context()
 
-	// Test Event method
-	logger.Event(ctx, log.SeverityInfo, "user.login", "user_id", "12345", "session", "abc123")
-
-	want := logtest.Recording{
-		logtest.Scope{
-			Name: "test-logger",
-		}: {
-			logtest.Record{
-				Context:   ctx,
-				Severity:  log.SeverityInfo,
-				EventName: "user.login",
-				Attributes: []log.KeyValue{
-					log.String("user_id", "12345"),
-					log.String("session", "abc123"),
-				},
+	// Test all level-specific event methods and generic Event method
+	tests := []struct {
+		name          string
+		logFunc       func()
+		severity      log.Severity
+		eventName     string
+		expectedAttrs []log.KeyValue
+	}{
+		{
+			name:      "TraceEvent",
+			logFunc:   func() { logger.TraceEvent(ctx, "trace.event", "key", "value") },
+			severity:  log.SeverityTrace,
+			eventName: "trace.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "DebugEvent",
+			logFunc:   func() { logger.DebugEvent(ctx, "debug.event", "key", "value") },
+			severity:  log.SeverityDebug,
+			eventName: "debug.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "InfoEvent",
+			logFunc:   func() { logger.InfoEvent(ctx, "info.event", "key", "value") },
+			severity:  log.SeverityInfo,
+			eventName: "info.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "WarnEvent",
+			logFunc:   func() { logger.WarnEvent(ctx, "warn.event", "key", "value") },
+			severity:  log.SeverityWarn,
+			eventName: "warn.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "ErrorEvent",
+			logFunc:   func() { logger.ErrorEvent(ctx, "error.event", "key", "value") },
+			severity:  log.SeverityError,
+			eventName: "error.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "Event with Info severity",
+			logFunc:   func() { logger.Event(ctx, log.SeverityInfo, "user.login", "user_id", "12345", "session", "abc123") },
+			severity:  log.SeverityInfo,
+			eventName: "user.login",
+			expectedAttrs: []log.KeyValue{
+				log.String("user_id", "12345"),
+				log.String("session", "abc123"),
+			},
+		},
+		{
+			name:      "Event with Trace severity",
+			logFunc:   func() { logger.Event(ctx, log.SeverityTrace, "custom.trace.event", "key", "value") },
+			severity:  log.SeverityTrace,
+			eventName: "custom.trace.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "Event with Warn2 severity",
+			logFunc:   func() { logger.Event(ctx, log.SeverityWarn2, "custom.warn2.event", "key", "value") },
+			severity:  log.SeverityWarn2,
+			eventName: "custom.warn2.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
 			},
 		},
 	}
 
-	got := recorder.Result()
-	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
-		r.Timestamp = time.Time{}
-		r.ObservedTimestamp = time.Time{}
-		return r
-	}))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			recorder.Reset()
+			tt.logFunc()
+
+			want := logtest.Recording{
+				logtest.Scope{
+					Name: "test-logger",
+				}: {
+					logtest.Record{
+						Context:    ctx,
+						Severity:   tt.severity,
+						EventName:  tt.eventName,
+						Attributes: tt.expectedAttrs,
+					},
+				},
+			}
+
+			got := recorder.Result()
+			logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+				r.Timestamp = time.Time{}
+				r.ObservedTimestamp = time.Time{}
+				return r
+			}))
+		})
+	}
 }
 
 func TestLogger_WithAttributes(t *testing.T) {
@@ -357,6 +441,34 @@ func TestLogger_WithAttributes(t *testing.T) {
 
 	got := recorder.Result()
 	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+		r.Timestamp = time.Time{}
+		r.ObservedTimestamp = time.Time{}
+		return r
+	}))
+
+	// Test event methods with pre-configured attributes
+	recorder.Reset()
+	logger.WarnEvent(ctx, "rate.limit.exceeded", "client_ip", "192.168.1.100")
+
+	eventWant := logtest.Recording{
+		logtest.Scope{
+			Name: "test-logger",
+		}: {
+			logtest.Record{
+				Context:   ctx,
+				Severity:  log.SeverityWarn,
+				EventName: "rate.limit.exceeded",
+				Attributes: []log.KeyValue{
+					log.String("service", "user-service"),
+					log.String("version", "1.0.0"),
+					log.String("client_ip", "192.168.1.100"),
+				},
+			},
+		},
+	}
+
+	got = recorder.Result()
+	logtest.AssertEqual(t, eventWant, got, logtest.Transform(func(r logtest.Record) logtest.Record {
 		r.Timestamp = time.Time{}
 		r.ObservedTimestamp = time.Time{}
 		return r
@@ -475,6 +587,52 @@ func TestLogger_EnabledMethod(t *testing.T) {
 
 	if !logger.ErrorEnabled(ctx) {
 		t.Error("expected error level to be enabled")
+	}
+
+	// Test EventEnabled methods with sample event name
+	sampleEvent := "test.event"
+
+	// Test that lower level EventEnabled methods are disabled
+	if logger.TraceEventEnabled(ctx, sampleEvent) {
+		t.Error("expected trace event logging to be disabled")
+	}
+	if logger.DebugEventEnabled(ctx, sampleEvent) {
+		t.Error("expected debug event logging to be disabled")
+	}
+
+	// Test that higher level EventEnabled methods are enabled
+	if !logger.InfoEventEnabled(ctx, sampleEvent) {
+		t.Error("expected info event logging to be enabled")
+	}
+	if !logger.WarnEventEnabled(ctx, sampleEvent) {
+		t.Error("expected warn event logging to be enabled")
+	}
+	if !logger.ErrorEventEnabled(ctx, sampleEvent) {
+		t.Error("expected error event logging to be enabled")
+	}
+
+	// Test with a fully enabled logger
+	enabledRecorder := logtest.NewRecorder()
+	enabledLogger := New(Options{
+		Provider: enabledRecorder,
+		Name:     "enabled-logger",
+	})
+
+	// All levels should be enabled
+	if !enabledLogger.TraceEventEnabled(ctx, sampleEvent) {
+		t.Error("expected trace event logging to be enabled with fully enabled logger")
+	}
+	if !enabledLogger.DebugEventEnabled(ctx, sampleEvent) {
+		t.Error("expected debug event logging to be enabled with fully enabled logger")
+	}
+	if !enabledLogger.InfoEventEnabled(ctx, sampleEvent) {
+		t.Error("expected info event logging to be enabled with fully enabled logger")
+	}
+	if !enabledLogger.WarnEventEnabled(ctx, sampleEvent) {
+		t.Error("expected warn event logging to be enabled with fully enabled logger")
+	}
+	if !enabledLogger.ErrorEventEnabled(ctx, sampleEvent) {
+		t.Error("expected error event logging to be enabled with fully enabled logger")
 	}
 }
 
@@ -766,31 +924,108 @@ func TestLogger_EventAttr(t *testing.T) {
 
 	ctx := t.Context()
 
-	// Test EventAttr method
-	logger.EventAttr(ctx, log.SeverityInfo, "user.login", log.String("user_id", "12345"), log.String("session", "abc123"))
-
-	want := logtest.Recording{
-		logtest.Scope{
-			Name: "test-logger",
-		}: {
-			logtest.Record{
-				Context:   ctx,
-				Severity:  log.SeverityInfo,
-				EventName: "user.login",
-				Attributes: []log.KeyValue{
-					log.String("user_id", "12345"),
-					log.String("session", "abc123"),
-				},
+	// Test all level-specific event attribute methods and generic EventAttr method
+	tests := []struct {
+		name          string
+		logFunc       func()
+		severity      log.Severity
+		eventName     string
+		expectedAttrs []log.KeyValue
+	}{
+		{
+			name:      "TraceEventAttr",
+			logFunc:   func() { logger.TraceEventAttr(ctx, "trace.event", log.String("key", "value")) },
+			severity:  log.SeverityTrace,
+			eventName: "trace.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "DebugEventAttr",
+			logFunc:   func() { logger.DebugEventAttr(ctx, "debug.event", log.String("key", "value")) },
+			severity:  log.SeverityDebug,
+			eventName: "debug.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "InfoEventAttr",
+			logFunc:   func() { logger.InfoEventAttr(ctx, "info.event", log.String("key", "value")) },
+			severity:  log.SeverityInfo,
+			eventName: "info.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "WarnEventAttr",
+			logFunc:   func() { logger.WarnEventAttr(ctx, "warn.event", log.String("key", "value")) },
+			severity:  log.SeverityWarn,
+			eventName: "warn.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name:      "ErrorEventAttr",
+			logFunc:   func() { logger.ErrorEventAttr(ctx, "error.event", log.String("key", "value")) },
+			severity:  log.SeverityError,
+			eventName: "error.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
+			},
+		},
+		{
+			name: "EventAttr with Info severity",
+			logFunc: func() {
+				logger.EventAttr(ctx, log.SeverityInfo, "user.login", log.String("user_id", "12345"), log.String("session", "abc123"))
+			},
+			severity:  log.SeverityInfo,
+			eventName: "user.login",
+			expectedAttrs: []log.KeyValue{
+				log.String("user_id", "12345"),
+				log.String("session", "abc123"),
+			},
+		},
+		{
+			name:      "EventAttr with Error2 severity",
+			logFunc:   func() { logger.EventAttr(ctx, log.SeverityError2, "custom.error2.event", log.String("key", "value")) },
+			severity:  log.SeverityError2,
+			eventName: "custom.error2.event",
+			expectedAttrs: []log.KeyValue{
+				log.String("key", "value"),
 			},
 		},
 	}
 
-	got := recorder.Result()
-	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
-		r.Timestamp = time.Time{}
-		r.ObservedTimestamp = time.Time{}
-		return r
-	}))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			recorder.Reset()
+			tt.logFunc()
+
+			want := logtest.Recording{
+				logtest.Scope{
+					Name: "test-logger",
+				}: {
+					logtest.Record{
+						Context:    ctx,
+						Severity:   tt.severity,
+						EventName:  tt.eventName,
+						Attributes: tt.expectedAttrs,
+					},
+				},
+			}
+
+			got := recorder.Result()
+			logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+				r.Timestamp = time.Time{}
+				r.ObservedTimestamp = time.Time{}
+				return r
+			}))
+		})
+	}
 }
 
 func TestLogger_WithAttr(t *testing.T) {
@@ -822,6 +1057,34 @@ func TestLogger_WithAttr(t *testing.T) {
 
 	got := recorder.Result()
 	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+		r.Timestamp = time.Time{}
+		r.ObservedTimestamp = time.Time{}
+		return r
+	}))
+
+	// Test event attr methods with pre-configured attributes
+	recorder.Reset()
+	logger.WarnEventAttr(ctx, "rate.limit.exceeded", log.String("client_ip", "192.168.1.100"))
+
+	eventWant := logtest.Recording{
+		logtest.Scope{
+			Name: "test-logger",
+		}: {
+			logtest.Record{
+				Context:   ctx,
+				Severity:  log.SeverityWarn,
+				EventName: "rate.limit.exceeded",
+				Attributes: []log.KeyValue{
+					log.String("service", "user-service"),
+					log.String("version", "1.0.0"),
+					log.String("client_ip", "192.168.1.100"),
+				},
+			},
+		},
+	}
+
+	got = recorder.Result()
+	logtest.AssertEqual(t, eventWant, got, logtest.Transform(func(r logtest.Record) logtest.Record {
 		r.Timestamp = time.Time{}
 		r.ObservedTimestamp = time.Time{}
 		return r
