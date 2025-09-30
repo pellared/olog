@@ -8,6 +8,20 @@ as well as to [Module version numbering](https://go.dev/doc/modules/version-numb
 
 ## [Unreleased](https://github.com/pellared/olog/compare/v0.0.2...HEAD)
 
+### Added
+
+- `Logger.TraceEvent(ctx context.Context, name string, args ...any)` that logs a trace-level event with the specified name and optional key-value pairs.
+- `Logger.DebugEvent(ctx context.Context, name string, args ...any)` that logs a debug-level event with the specified name and optional key-value pairs.
+- `Logger.InfoEvent(ctx context.Context, name string, args ...any)` that logs an info-level event with the specified name and optional key-value pairs.
+- `Logger.WarnEvent(ctx context.Context, name string, args ...any)` that logs a warn-level event with the specified name and optional key-value pairs.
+- `Logger.ErrorEvent(ctx context.Context, name string, args ...any)` that logs an error-level event with the specified name and optional key-value pairs.
+- `Logger.TraceEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs a trace-level event with the specified name and the provided attributes.
+- `Logger.DebugEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs a debug-level event with the specified name and the provided attributes.
+- `Logger.InfoEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs an info-level event with the specified name and the provided attributes.
+- `Logger.WarnEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs a warn-level event with the specified name and the provided attributes.
+- `Logger.ErrorEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs an error-level event with the specified name and the provided attributes.
+- `Logger.EventEnabled(ctx context.Context) bool` that reports whether the logger emits event log records.
+
 ## [0.0.2](https://github.com/pellared/olog/releases/tag/v0.0.2) - 2025-09-26
 
 ### Changed

@@ -62,18 +62,27 @@ Use structured attributes to organize your logs:
 
 # Event Logging
 
-Log structured events following semantic conventions:
+Log structured events at different severity levels following semantic conventions:
 
-	logger.EventAttr(ctx, "user.login",
+	// Log events at different levels
+	logger.InfoEventAttr(ctx, "user.login",
 		log.String("user.id", "12345"),
 		log.String("user.email", "user@example.com"),
 		log.String("session.id", "sess-abc123"))
+
+	logger.WarnEventAttr(ctx, "rate.limit.exceeded",
+		log.String("client.ip", "192.168.1.100"),
+		log.Int("requests_per_minute", 150))
+
+	logger.ErrorEventAttr(ctx, "payment.failed",
+		log.String("payment.id", "pay-123"),
+		log.String("error", "insufficient_funds"))
 
 # Performance
 
 olog is designed with performance in mind:
 
-  - Use TraceEnabled, DebugEnabled, InfoEnabled, WarnEnabled, and ErrorEnabled checks to avoid expensive operations when logging is disabled
+  - Use TraceEnabled, DebugEnabled, InfoEnabled, WarnEnabled, ErrorEnabled, and EventEnabled checks to avoid expensive operations when logging is disabled
   - Logger composition with WithAttr pre-processes common attributes
   - Direct integration with OpenTelemetry Logs API avoids unnecessary conversions
 

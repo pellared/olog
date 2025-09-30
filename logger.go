@@ -34,10 +34,12 @@ type Options struct {
 // OpenTelemetry Logs API as the backend.
 //
 // The Logger offers two styles of API:
-//   - Argument-based methods (Trace, Debug, Info, Warn, Error, Log, Event, With) that accept
-//     alternating key-value pairs as ...any arguments
+//   - Argument-based methods (Trace, Debug, Info, Warn, Error, Log, TraceEvent, DebugEvent,
+//     InfoEvent, WarnEvent, ErrorEvent, Event, With) that accept alternating key-value pairs
+//     as ...any arguments
 //   - Attribute-based methods (TraceAttr, DebugAttr, InfoAttr, WarnAttr, ErrorAttr, LogAttr,
-//     EventAttr, WithAttr) that accept strongly-typed log.KeyValue attributes
+//     TraceEventAttr, DebugEventAttr, InfoEventAttr, WarnEventAttr, ErrorEventAttr, EventAttr,
+//     WithAttr) that accept strongly-typed log.KeyValue attributes
 //
 // The attribute-based methods provide better type safety and can offer better
 // performance in some scenarios, particularly when used with WithAttr for
@@ -178,6 +180,13 @@ func (l *Logger) ErrorEnabled(ctx context.Context) bool {
 	})
 }
 
+// EventEnabled reports whether the logger emits event log records.
+func (l *Logger) EventEnabled(ctx context.Context) bool {
+	return l.Enabled(ctx, log.EnabledParameters{
+		Severity: log.SeverityInfo,
+	})
+}
+
 // Trace logs a trace message with the provided attributes.
 func (l *Logger) Trace(ctx context.Context, msg string, args ...any) {
 	l.log(ctx, log.SeverityTrace, msg, args)
@@ -208,15 +217,35 @@ func (l *Logger) Log(ctx context.Context, level log.Severity, msg string, args .
 	l.log(ctx, level, msg, args)
 }
 
-// Event logs an event with the specified name and optional key-value pairs.
-func (l *Logger) Event(ctx context.Context, name string, args ...any) {
-	var record log.Record
-	record.SetEventName(name)
-	record.SetTimestamp(time.Now())
-	record.SetSeverity(log.SeverityInfo)
+// TraceEvent logs a trace-level event with the specified name and optional key-value pairs.
+func (l *Logger) TraceEvent(ctx context.Context, name string, args ...any) {
+	l.logEvent(ctx, log.SeverityTrace, name, args)
+}
 
-	l.addAttributes(&record, args)
-	l.Emit(ctx, record)
+// DebugEvent logs a debug-level event with the specified name and optional key-value pairs.
+func (l *Logger) DebugEvent(ctx context.Context, name string, args ...any) {
+	l.logEvent(ctx, log.SeverityDebug, name, args)
+}
+
+// InfoEvent logs an info-level event with the specified name and optional key-value pairs.
+func (l *Logger) InfoEvent(ctx context.Context, name string, args ...any) {
+	l.logEvent(ctx, log.SeverityInfo, name, args)
+}
+
+// WarnEvent logs a warn-level event with the specified name and optional key-value pairs.
+func (l *Logger) WarnEvent(ctx context.Context, name string, args ...any) {
+	l.logEvent(ctx, log.SeverityWarn, name, args)
+}
+
+// ErrorEvent logs an error-level event with the specified name and optional key-value pairs.
+func (l *Logger) ErrorEvent(ctx context.Context, name string, args ...any) {
+	l.logEvent(ctx, log.SeverityError, name, args)
+}
+
+// Event logs an event with the specified name and optional key-value pairs.
+// This method logs at Info level for backward compatibility.
+func (l *Logger) Event(ctx context.Context, name string, args ...any) {
+	l.logEvent(ctx, log.SeverityInfo, name, args)
 }
 
 // TraceAttr logs a trace message with the provided attributes.
@@ -249,15 +278,35 @@ func (l *Logger) LogAttr(ctx context.Context, level log.Severity, msg string, at
 	l.logAttr(ctx, level, msg, attrs)
 }
 
-// EventAttr logs an event with the specified name and the provided attributes.
-func (l *Logger) EventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
-	var record log.Record
-	record.SetEventName(name)
-	record.SetTimestamp(time.Now())
-	record.SetSeverity(log.SeverityInfo)
+// TraceEventAttr logs a trace-level event with the specified name and the provided attributes.
+func (l *Logger) TraceEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityTrace, name, attrs)
+}
 
-	l.addKeyValueAttributes(&record, attrs)
-	l.Emit(ctx, record)
+// DebugEventAttr logs a debug-level event with the specified name and the provided attributes.
+func (l *Logger) DebugEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityDebug, name, attrs)
+}
+
+// InfoEventAttr logs an info-level event with the specified name and the provided attributes.
+func (l *Logger) InfoEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityInfo, name, attrs)
+}
+
+// WarnEventAttr logs a warn-level event with the specified name and the provided attributes.
+func (l *Logger) WarnEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityWarn, name, attrs)
+}
+
+// ErrorEventAttr logs an error-level event with the specified name and the provided attributes.
+func (l *Logger) ErrorEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityError, name, attrs)
+}
+
+// EventAttr logs an event with the specified name and the provided attributes.
+// This method logs at Info level for backward compatibility.
+func (l *Logger) EventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityInfo, name, attrs)
 }
 
 // WithAttr returns a new Logger that includes the given attributes in all log records.
@@ -359,4 +408,26 @@ func (l *Logger) addKeyValueAttributes(record *log.Record, attrs []log.KeyValue)
 	record.AddAttributes(l.attrs...)
 	// Then add call-specific attributes
 	record.AddAttributes(attrs...)
+}
+
+// logEvent is the internal event logging method that handles the common event logging logic.
+func (l *Logger) logEvent(ctx context.Context, level log.Severity, name string, args []any) {
+	var record log.Record
+	record.SetEventName(name)
+	record.SetTimestamp(time.Now())
+	record.SetSeverity(level)
+
+	l.addAttributes(&record, args)
+	l.Emit(ctx, record)
+}
+
+// logEventAttr is the internal event logging method that handles event logging with log.KeyValue attributes.
+func (l *Logger) logEventAttr(ctx context.Context, level log.Severity, name string, attrs []log.KeyValue) {
+	var record log.Record
+	record.SetEventName(name)
+	record.SetTimestamp(time.Now())
+	record.SetSeverity(level)
+
+	l.addKeyValueAttributes(&record, attrs)
+	l.Emit(ctx, record)
 }

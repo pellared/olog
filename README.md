@@ -25,7 +25,7 @@ It addresses the concerns raised in
 1. **Simple API**: Easy-to-use methods like `Debug()`, `Info()`, `Warn()`, `Error()` similar to popular logging libraries
 2. **Level-specific enabled checks**: Built-in support for common log levels with `DebugEnabled()`, `InfoEnabled()`, etc. for performance
 3. **Structured logging**: Support for key-value pairs using the alternating syntax (similar to `slog`)
-4. **Event logging**: Dedicated `Event()` and `EventAttr()` methods for semantic events
+4. **Event logging**: Level-specific event methods (`TraceEvent()`, `DebugEvent()`, `InfoEvent()`, `WarnEvent()`, `ErrorEvent()`) and their attribute counterparts, plus `EventEnabled()` check for performance
 5. **Context support**: All methods accept `context.Context` for trace correlation
 6. **Logger composition**: `With()` and `WithAttr()` methods for attribute composition
 7. **Performance oriented**: Level-specific enabled checks to avoid expensive operations
