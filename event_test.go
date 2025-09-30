@@ -168,7 +168,7 @@ func TestLogger_LevelSpecificEventsAttr(t *testing.T) {
 	}
 }
 
-func TestLogger_EventEnabled(t *testing.T) {
+func TestLogger_LevelSpecificEventEnabled(t *testing.T) {
 	recorder := logtest.NewRecorder()
 	logger := New(Options{
 		Provider: recorder,
@@ -177,12 +177,52 @@ func TestLogger_EventEnabled(t *testing.T) {
 
 	ctx := t.Context()
 
-	// Test EventEnabled method - should return true for Info level
-	if !logger.EventEnabled(ctx) {
-		t.Error("expected event logging to be enabled")
+	// Test all level-specific EventEnabled methods
+	eventNames := []string{"test.event", "user.login", "payment.processed", "system.startup"}
+
+	tests := []struct {
+		name        string
+		enabledFunc func(context.Context, string) bool
+		severity    string
+	}{
+		{
+			name:        "TraceEventEnabled",
+			enabledFunc: logger.TraceEventEnabled,
+			severity:    "trace",
+		},
+		{
+			name:        "DebugEventEnabled",
+			enabledFunc: logger.DebugEventEnabled,
+			severity:    "debug",
+		},
+		{
+			name:        "InfoEventEnabled",
+			enabledFunc: logger.InfoEventEnabled,
+			severity:    "info",
+		},
+		{
+			name:        "WarnEventEnabled",
+			enabledFunc: logger.WarnEventEnabled,
+			severity:    "warn",
+		},
+		{
+			name:        "ErrorEventEnabled",
+			enabledFunc: logger.ErrorEventEnabled,
+			severity:    "error",
+		},
 	}
 
-	// Test with a recorder that's disabled for info level
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, eventName := range eventNames {
+				if !tt.enabledFunc(ctx, eventName) {
+					t.Errorf("expected %s event logging to be enabled for event: %s", tt.severity, eventName)
+				}
+			}
+		})
+	}
+
+	// Test with a recorder that's disabled for info level and below
 	disabledRecorder := logtest.NewRecorder(
 		logtest.WithEnabledFunc(func(_ context.Context, param log.EnabledParameters) bool {
 			return param.Severity > log.SeverityInfo
@@ -193,8 +233,25 @@ func TestLogger_EventEnabled(t *testing.T) {
 		Name:     "disabled-logger",
 	})
 
-	if disabledLogger.EventEnabled(ctx) {
-		t.Error("expected event logging to be disabled")
+	// Test that lower levels are disabled
+	for _, eventName := range eventNames {
+		if disabledLogger.TraceEventEnabled(ctx, eventName) {
+			t.Errorf("expected trace event logging to be disabled for event: %s", eventName)
+		}
+		if disabledLogger.DebugEventEnabled(ctx, eventName) {
+			t.Errorf("expected debug event logging to be disabled for event: %s", eventName)
+		}
+		if disabledLogger.InfoEventEnabled(ctx, eventName) {
+			t.Errorf("expected info event logging to be disabled for event: %s", eventName)
+		}
+
+		// But higher levels should be enabled
+		if !disabledLogger.WarnEventEnabled(ctx, eventName) {
+			t.Errorf("expected warn event logging to be enabled for event: %s", eventName)
+		}
+		if !disabledLogger.ErrorEventEnabled(ctx, eventName) {
+			t.Errorf("expected error event logging to be enabled for event: %s", eventName)
+		}
 	}
 }
 

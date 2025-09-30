@@ -180,10 +180,43 @@ func (l *Logger) ErrorEnabled(ctx context.Context) bool {
 	})
 }
 
-// EventEnabled reports whether the logger emits event log records.
-func (l *Logger) EventEnabled(ctx context.Context) bool {
+// TraceEventEnabled reports whether the logger emits trace-level event log records for the specified event name.
+func (l *Logger) TraceEventEnabled(ctx context.Context, eventName string) bool {
 	return l.Enabled(ctx, log.EnabledParameters{
-		Severity: log.SeverityInfo,
+		Severity:  log.SeverityTrace,
+		EventName: eventName,
+	})
+}
+
+// DebugEventEnabled reports whether the logger emits debug-level event log records for the specified event name.
+func (l *Logger) DebugEventEnabled(ctx context.Context, eventName string) bool {
+	return l.Enabled(ctx, log.EnabledParameters{
+		Severity:  log.SeverityDebug,
+		EventName: eventName,
+	})
+}
+
+// InfoEventEnabled reports whether the logger emits info-level event log records for the specified event name.
+func (l *Logger) InfoEventEnabled(ctx context.Context, eventName string) bool {
+	return l.Enabled(ctx, log.EnabledParameters{
+		Severity:  log.SeverityInfo,
+		EventName: eventName,
+	})
+}
+
+// WarnEventEnabled reports whether the logger emits warn-level event log records for the specified event name.
+func (l *Logger) WarnEventEnabled(ctx context.Context, eventName string) bool {
+	return l.Enabled(ctx, log.EnabledParameters{
+		Severity:  log.SeverityWarn,
+		EventName: eventName,
+	})
+}
+
+// ErrorEventEnabled reports whether the logger emits error-level event log records for the specified event name.
+func (l *Logger) ErrorEventEnabled(ctx context.Context, eventName string) bool {
+	return l.Enabled(ctx, log.EnabledParameters{
+		Severity:  log.SeverityError,
+		EventName: eventName,
 	})
 }
 

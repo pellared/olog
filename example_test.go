@@ -71,8 +71,8 @@ func ExampleLogger_events() {
 		"user.id", "12345",
 		"error", "insufficient_funds")
 
-	// Check if event logging is enabled before expensive operations
-	if logger.EventEnabled(ctx) {
+	// Check if debug event logging is enabled before expensive operations
+	if logger.DebugEventEnabled(ctx, "debug.session.details") {
 		logger.DebugEvent(ctx, "debug.session.details",
 			"session.data", computeSessionDebugInfo(),
 			"trace.id", "trace-abc123")

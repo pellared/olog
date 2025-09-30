@@ -20,7 +20,11 @@ as well as to [Module version numbering](https://go.dev/doc/modules/version-numb
 - `Logger.InfoEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs an info-level event with the specified name and the provided attributes.
 - `Logger.WarnEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs a warn-level event with the specified name and the provided attributes.
 - `Logger.ErrorEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` that logs an error-level event with the specified name and the provided attributes.
-- `Logger.EventEnabled(ctx context.Context) bool` that reports whether the logger emits event log records.
+- `Logger.TraceEventEnabled(ctx context.Context, eventName string) bool` that reports whether the logger emits trace-level event log records for the given event name.
+- `Logger.DebugEventEnabled(ctx context.Context, eventName string) bool` that reports whether the logger emits debug-level event log records for the given event name.
+- `Logger.InfoEventEnabled(ctx context.Context, eventName string) bool` that reports whether the logger emits info-level event log records for the given event name.
+- `Logger.WarnEventEnabled(ctx context.Context, eventName string) bool` that reports whether the logger emits warn-level event log records for the given event name.
+- `Logger.ErrorEventEnabled(ctx context.Context, eventName string) bool` that reports whether the logger emits error-level event log records for the given event name.
 
 ### Changed
 
