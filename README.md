@@ -22,20 +22,9 @@ It addresses the concerns raised in
 
 ## Contributing
 
-Feel free to create an issue,
-join the [discussions](https://github.com/pellared/olog/discussions/2),
-or propose a pull request.
+Feel free to create an issue or propose a pull request.
 
 Please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
-
-This module follows several key design principles:
-
-1. **Ergonomic API**: Provides simple methods that are easy to use and understand
-2. **Performance First**: Includes `Enabled()` checks and optimizations to minimize overhead
-3. **Structured Logging**: Emphasizes key-value pairs over string formatting
-4. **Compatibility**: Uses OpenTelemetry Logs API as the backend for full compatibility
-5. **Composability**: Supports logger composition through `With()`
-6. **Familiar Patterns**: Similar to `slog` design patterns that Go developers already know
 
 ## License
 
