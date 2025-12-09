@@ -277,7 +277,7 @@ func convertArgsToKeyValues(args []any) []log.KeyValue {
 	keyValues := make([]log.KeyValue, 0, len(args)/2+1)
 	for i := 0; i < len(args); i += 2 {
 		if i+1 >= len(args) {
-			// Odd number of arguments, add the key with empty value
+			// Odd number of arguments, add the key with empty value.
 			if key, ok := args[i].(string); ok {
 				keyValues = append(keyValues, log.String(key, ""))
 			}

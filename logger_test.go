@@ -9,6 +9,7 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
+	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/log/logtest"
 )
 
@@ -281,4 +282,185 @@ func TestNew_WithOptions(t *testing.T) {
 			t.Errorf("expected scope attributes %v, got %v", attrs, scope.Attributes)
 		}
 	}
+}
+
+func TestNew_WithEmptyName(t *testing.T) {
+	recorder := logtest.NewRecorder()
+
+	// Create logger without specifying a name
+	logger := New(Options{
+		Provider: recorder,
+	})
+
+	ctx := t.Context()
+	logger.Info(ctx, "test.event")
+
+	want := logtest.Recording{
+		logtest.Scope{
+			Name: "github.com/pellared/olog",
+		}: {
+			logtest.Record{
+				Context:   ctx,
+				Severity:  log.SeverityInfo,
+				EventName: "test.event",
+			},
+		},
+	}
+
+	got := recorder.Result()
+	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+		r.Timestamp = time.Time{}
+		r.ObservedTimestamp = time.Time{}
+		return r
+	}))
+}
+
+func TestNew_WithNilProvider(t *testing.T) {
+	// Save previous global provider and restore it after test
+	prevProvider := global.GetLoggerProvider()
+	t.Cleanup(func() {
+		global.SetLoggerProvider(prevProvider)
+	})
+
+	// Set recorder as global provider
+	recorder := logtest.NewRecorder()
+	global.SetLoggerProvider(recorder)
+
+	// Create logger with nil provider (should use global provider)
+	logger := New(Options{
+		Name: "test-logger",
+	})
+
+	ctx := t.Context()
+	logger.Info(ctx, "test.event", "key", "value")
+
+	want := logtest.Recording{
+		logtest.Scope{
+			Name: "test-logger",
+		}: {
+			logtest.Record{
+				Context:   ctx,
+				Severity:  log.SeverityInfo,
+				EventName: "test.event",
+				Attributes: []log.KeyValue{
+					log.String("key", "value"),
+				},
+			},
+		},
+	}
+
+	got := recorder.Result()
+	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+		r.Timestamp = time.Time{}
+		r.ObservedTimestamp = time.Time{}
+		return r
+	}))
+}
+
+func TestLogger_WithOddNumberArgs(t *testing.T) {
+	recorder := logtest.NewRecorder()
+	logger := New(Options{
+		Provider: recorder,
+		Name:     "test",
+	})
+
+	ctx := t.Context()
+
+	// Test with odd number of arguments (last key has no value)
+	logger.Info(ctx, "test.event", "key1", "value1", "key2")
+
+	want := logtest.Recording{
+		logtest.Scope{
+			Name: "test",
+		}: {
+			logtest.Record{
+				Context:   ctx,
+				Severity:  log.SeverityInfo,
+				EventName: "test.event",
+				Attributes: []log.KeyValue{
+					log.String("key1", "value1"),
+					log.String("key2", ""),
+				},
+			},
+		},
+	}
+
+	got := recorder.Result()
+	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+		r.Timestamp = time.Time{}
+		r.ObservedTimestamp = time.Time{}
+		return r
+	}))
+}
+
+func TestLogger_WithNonStringKeys(t *testing.T) {
+	recorder := logtest.NewRecorder()
+	logger := New(Options{
+		Provider: recorder,
+		Name:     "test",
+	})
+
+	ctx := t.Context()
+
+	// Test with non-string keys (should be skipped)
+	logger.Info(ctx, "test.event", 123, "value1", "key2", "value2")
+
+	want := logtest.Recording{
+		logtest.Scope{
+			Name: "test",
+		}: {
+			logtest.Record{
+				Context:   ctx,
+				Severity:  log.SeverityInfo,
+				EventName: "test.event",
+				Attributes: []log.KeyValue{
+					log.String("key2", "value2"),
+				},
+			},
+		},
+	}
+
+	got := recorder.Result()
+	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+		r.Timestamp = time.Time{}
+		r.ObservedTimestamp = time.Time{}
+		return r
+	}))
+}
+
+func TestLogger_WithMixedInvalidArgs(t *testing.T) {
+	recorder := logtest.NewRecorder()
+	logger := New(Options{
+		Provider: recorder,
+		Name:     "test",
+	})
+
+	ctx := t.Context()
+
+	// Test with mixed invalid arguments: non-string keys are skipped
+	logger.Info(ctx, "test.event", "key1", "value1", 456, "ignored", "key2", "value2", 789)
+
+	want := logtest.Recording{
+		logtest.Scope{
+			Name: "test",
+		}: {
+			logtest.Record{
+				Context:   ctx,
+				Severity:  log.SeverityInfo,
+				EventName: "test.event",
+				Attributes: []log.KeyValue{
+					log.String("key1", "value1"),
+					log.String("key2", "value2"),
+					// 789 is not a string key, so it's skipped (not added as "789": "")
+				},
+			},
+		},
+	}
+
+	got := recorder.Result()
+	logtest.AssertEqual(t, want, got, logtest.Transform(func(r logtest.Record) logtest.Record {
+		r.Timestamp = time.Time{}
+		r.ObservedTimestamp = time.Time{}
+		return r
+	}))
 }
