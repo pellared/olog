@@ -34,7 +34,7 @@ The simplest way to use olog is by creating a logger instance:
 		log.String("path", "/api/users"))
 
 	// Check if logging is enabled before expensive operations
-	if logger.DebugEnabled(ctx) {
+	if logger.DebugEnabled(ctx, "debug.info") {
 		expensiveData := computeExpensiveDebugInfo()
 		logger.DebugAttr(ctx, "debug.info", log.String("data", expensiveData))
 	}
