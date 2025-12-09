@@ -8,25 +8,25 @@ as well as to [Module version numbering](https://go.dev/doc/modules/version-numb
 
 ## [Unreleased](https://github.com/pellared/olog/compare/v0.0.3...HEAD)
 
-### Remove
+### Changed
 
-- **BREAKING:** Remove `Logger.Trace(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.TraceAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.TraceEnabled(ctx context.Context) bool`. Use `TraceEventEnabled` instead.
-- **BREAKING:** Remove `Logger.Debug(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.DebugAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.DebugEnabled(ctx context.Context) bool`. Use `DebugEventEnabled` instead.
-- **BREAKING:** Remove `Logger.Info(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.InfoAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.InfoEnabled(ctx context.Context) bool`. Use `InfoEventEnabled` instead.
-- **BREAKING:** Remove `Logger.Warn(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.WarnAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.WarnEnabled(ctx context.Context) bool`. Use `WarnEventEnabled` instead.
-- **BREAKING:** Remove `Logger.Error(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.ErrorAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
-- **BREAKING:** Remove `Logger.ErrorEnabled(ctx context.Context) bool`. Use `ErrorEventEnabled` instead.
-- **BREAKING:** Remove `Logger.Log(ctx context.Context, level log.Severity, msg string, args ...any)`. Use `Event` instead.
-- **BREAKING:** Remove `Logger.LogAttr(ctx context.Context, level log.Severity, msg string, attrs ...log.KeyValue)`. Use `EventAttr` instead.
+- **BREAKING:** Rename `Logger.TraceEvent(ctx context.Context, name string, args ...any)` to `Logger.Trace(ctx context.Context, eventName string, args ...any)`.
+- **BREAKING:** Rename `Logger.DebugEvent(ctx context.Context, name string, args ...any)` to `Logger.Debug(ctx context.Context, eventName string, args ...any)`.
+- **BREAKING:** Rename `Logger.InfoEvent(ctx context.Context, name string, args ...any)` to `Logger.Info(ctx context.Context, eventName string, args ...any)`.
+- **BREAKING:** Rename `Logger.WarnEvent(ctx context.Context, name string, args ...any)` to `Logger.Warn(ctx context.Context, eventName string, args ...any)`.
+- **BREAKING:** Rename `Logger.ErrorEvent(ctx context.Context, name string, args ...any)` to `Logger.Error(ctx context.Context, eventName string, args ...any)`.
+- **BREAKING:** Rename `Logger.Event(ctx context.Context, level log.Severity, name string, args ...any)` to `Logger.Log(ctx context.Context, level log.Severity, eventName string, args ...any)`.
+- **BREAKING:** Rename `Logger.TraceEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` to `Logger.TraceAttr(ctx context.Context, eventName string, attrs ...log.KeyValue)`.
+- **BREAKING:** Rename `Logger.DebugEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` to `Logger.DebugAttr(ctx context.Context, eventName string, attrs ...log.KeyValue)`.
+- **BREAKING:** Rename `Logger.InfoEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` to `Logger.InfoAttr(ctx context.Context, eventName string, attrs ...log.KeyValue)`.
+- **BREAKING:** Rename `Logger.WarnEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` to `Logger.WarnAttr(ctx context.Context, eventName string, attrs ...log.KeyValue)`.
+- **BREAKING:** Rename `Logger.ErrorEventAttr(ctx context.Context, name string, attrs ...log.KeyValue)` to `Logger.ErrorAttr(ctx context.Context, eventName string, attrs ...log.KeyValue)`.
+- **BREAKING:** Rename `Logger.EventAttr(ctx context.Context, level log.Severity, name string, attrs ...log.KeyValue)` to `Logger.LogAttr(ctx context.Context, level log.Severity, eventName string, attrs ...log.KeyValue)`.
+- **BREAKING:** Rename `Logger.TraceEventEnabled(ctx context.Context, eventName string) bool` to `Logger.TraceEnabled(ctx context.Context, eventName string) bool`.
+- **BREAKING:** Rename `Logger.DebugEventEnabled(ctx context.Context, eventName string) bool` to `Logger.DebugEnabled(ctx context.Context, eventName string) bool`.
+- **BREAKING:** Rename `Logger.InfoEventEnabled(ctx context.Context, eventName string) bool` to `Logger.InfoEnabled(ctx context.Context, eventName string) bool`.
+- **BREAKING:** Rename `Logger.WarnEventEnabled(ctx context.Context, eventName string) bool` to `Logger.WarnEnabled(ctx context.Context, eventName string) bool`.
+- **BREAKING:** Rename `Logger.ErrorEventEnabled(ctx context.Context, eventName string) bool` to `Logger.ErrorEnabled(ctx context.Context, eventName string) bool`.
 
 ## [0.0.3](https://github.com/pellared/olog/releases/tag/v0.0.3) - 2025-09-30
 

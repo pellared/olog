@@ -22,7 +22,7 @@ func TestLogger_DefaultName(t *testing.T) {
 	ctx := t.Context()
 
 	// Test Info logging
-	logger.InfoEvent(ctx, "test.info", "key1", "value1", "key2", 42)
+	logger.Info(ctx, "test.info", "key1", "value1", "key2", 42)
 
 	// Verify using logtest.AssertEqual with Recording
 	want := logtest.Recording{

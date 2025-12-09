@@ -10,25 +10,25 @@ import (
 	"github.com/pellared/olog"
 )
 
-func ExampleLogger_events() {
+func ExampleLogger() {
 	ctx := context.Background()
 
 	// Create a logger for events
 	logger := olog.New(olog.Options{Provider: global.GetLoggerProvider(), Name: "example"})
 
 	// Log structured events at different severity levels
-	logger.InfoEvent(ctx, "user.login",
+	logger.Info(ctx, "user.login",
 		"user.id", "12345",
 		"user.email", "user@example.com",
 		"session.id", "sess-abc123",
 		"client.ip", "192.168.1.100")
 
-	logger.WarnEvent(ctx, "rate.limit.approached",
+	logger.Warn(ctx, "rate.limit.approached",
 		"client.ip", "192.168.1.100",
 		"requests_per_minute", 85,
 		"limit", 100)
 
-	logger.ErrorEvent(ctx, "payment.failed",
+	logger.Error(ctx, "payment.failed",
 		"payment.id", "pay-xyz789",
 		"payment.amount", 99.99,
 		"payment.currency", "USD",
@@ -36,14 +36,14 @@ func ExampleLogger_events() {
 		"error", "insufficient_funds")
 
 	// Check if debug event logging is enabled before expensive operations
-	if logger.DebugEventEnabled(ctx, "debug.session.details") {
-		logger.DebugEvent(ctx, "debug.session.details",
+	if logger.DebugEnabled(ctx, "debug.session.details") {
+		logger.Debug(ctx, "debug.session.details",
 			"session.data", computeSessionDebugInfo(),
 			"trace.id", "trace-abc123")
 	}
 }
 
-func ExampleLogger_eventsWithContext() {
+func ExampleLogger_With() {
 	ctx := context.Background()
 
 	// Create a base logger
@@ -57,9 +57,9 @@ func ExampleLogger_eventsWithContext() {
 	)
 
 	// Use the pre-configured logger for all request-scoped events
-	requestLogger.InfoEvent(ctx, "request.started", "method", "GET", "path", "/api/users")
-	requestLogger.InfoEvent(ctx, "database.query", "table", "users", "duration_ms", 23)
-	requestLogger.InfoEvent(ctx, "request.completed", "status", 200, "total_duration_ms", 145)
+	requestLogger.Info(ctx, "request.started", "method", "GET", "path", "/api/users")
+	requestLogger.Info(ctx, "database.query", "table", "users", "duration_ms", 23)
+	requestLogger.Info(ctx, "request.completed", "status", 200, "total_duration_ms", 145)
 }
 
 func computeSessionDebugInfo() string {
@@ -86,9 +86,9 @@ func ExampleNew_withOptions() {
 	})
 
 	// All event records will include the pre-configured attributes
-	logger.InfoEvent(ctx, "service.started", "status", "ready")
-	logger.WarnEvent(ctx, "resource.high_usage", "memory_percent", 85.5)
-	logger.ErrorEvent(ctx, "database.connection_failed", "retry_count", 3)
+	logger.Info(ctx, "service.started", "status", "ready")
+	logger.Warn(ctx, "resource.high_usage", "memory_percent", 85.5)
+	logger.Error(ctx, "database.connection_failed", "retry_count", 3)
 }
 
 func ExampleNew_withGlobalProvider() {
@@ -103,7 +103,7 @@ func ExampleNew_withGlobalProvider() {
 		),
 	})
 
-	logger.InfoEvent(ctx, "logger.initialized", "uses_global_provider", true)
+	logger.Info(ctx, "logger.initialized", "uses_global_provider", true)
 }
 
 func ExampleNew_minimal() {
@@ -113,35 +113,35 @@ func ExampleNew_minimal() {
 	// The logger name is the caller's full package name.
 	logger := olog.New(olog.Options{})
 
-	logger.InfoEvent(ctx, "minimal.example")
+	logger.Info(ctx, "minimal.example")
 }
 
-func ExampleLogger_eventAttr() {
+func ExampleLogger_InfoAttr() {
 	ctx := context.Background()
 
 	// Create a logger for structured events
 	logger := olog.New(olog.Options{Provider: global.GetLoggerProvider(), Name: "example"})
 
 	// Log events at different severity levels using the attribute-based methods
-	logger.InfoEventAttr(ctx, "user.signup",
+	logger.InfoAttr(ctx, "user.signup",
 		log.String("user.id", "user-789"),
 		log.String("user.email", "newuser@example.com"),
 		log.String("signup.method", "email"),
 		log.Bool("email.verified", false))
 
-	logger.WarnEventAttr(ctx, "api.deprecated.usage",
+	logger.WarnAttr(ctx, "api.deprecated.usage",
 		log.String("api.endpoint", "/v1/users"),
 		log.String("client.id", "client-123"),
 		log.String("replacement", "/v2/users"))
 
-	logger.ErrorEventAttr(ctx, "payment.failed",
+	logger.ErrorAttr(ctx, "payment.failed",
 		log.String("payment.id", "pay-abc123"),
 		log.Float64("payment.amount", 49.99),
 		log.String("payment.currency", "USD"),
 		log.String("payment.method", "credit_card"),
 		log.String("error.code", "card_declined"))
 
-	logger.DebugEventAttr(ctx, "file.uploaded",
+	logger.DebugAttr(ctx, "file.uploaded",
 		log.String("file.id", "file-456"),
 		log.String("file.name", "document.pdf"),
 		log.Int64("file.size_bytes", 2048576),
@@ -161,7 +161,7 @@ func ExampleLogger_withAttr() {
 		log.String("deployment.environment", "production"))
 
 	// All subsequent events will include the service attributes
-	serviceLogger.InfoEventAttr(ctx, "service.started",
+	serviceLogger.InfoAttr(ctx, "service.started",
 		log.Int64("port", 8080),
 		log.String("build", "abc1234"))
 
@@ -170,17 +170,17 @@ func ExampleLogger_withAttr() {
 		log.String("request.id", "req-789"),
 		log.String("user.id", "user-456"))
 
-	requestLogger.InfoEventAttr(ctx, "request.processing",
+	requestLogger.InfoAttr(ctx, "request.processing",
 		log.String("http.method", "POST"),
 		log.String("http.route", "/api/users"))
 
-	requestLogger.ErrorEventAttr(ctx, "validation.failed",
+	requestLogger.ErrorAttr(ctx, "validation.failed",
 		log.String("field", "email"),
 		log.String("error", "invalid format"))
 
 	// Mix WithAttr and With methods
 	mixedLogger := requestLogger.With("trace.id", "trace-xyz").WithAttr(log.Bool("debug.enabled", true))
-	mixedLogger.DebugEventAttr(ctx, "processing.detail",
+	mixedLogger.DebugAttr(ctx, "processing.detail",
 		log.Int64("processing.step", 3),
 		log.Float64("processing.duration_ms", 12.5))
 }

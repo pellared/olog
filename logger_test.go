@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/otel/log/logtest"
 )
 
-func TestLogger_EventBasic(t *testing.T) {
+func TestLogger_Basic(t *testing.T) {
 	recorder := logtest.NewRecorder()
 	logger := New(Options{
 		Provider: recorder,
@@ -21,12 +21,12 @@ func TestLogger_EventBasic(t *testing.T) {
 
 	ctx := t.Context()
 
-	logger.TraceEvent(ctx, "trace.event", "key", "value")
-	logger.DebugEvent(ctx, "debug.event", "key", "value")
-	logger.InfoEvent(ctx, "info.event", "key", "value")
-	logger.WarnEvent(ctx, "warn.event", "key", "value")
-	logger.ErrorEvent(ctx, "error.event", "key", "value")
-	logger.Event(ctx, log.SeverityInfo, "test.event", "key", "value")
+	logger.Trace(ctx, "trace.event", "key", "value")
+	logger.Debug(ctx, "debug.event", "key", "value")
+	logger.Info(ctx, "info.event", "key", "value")
+	logger.Warn(ctx, "warn.event", "key", "value")
+	logger.Error(ctx, "error.event", "key", "value")
+	logger.Log(ctx, log.SeverityInfo, "test.event", "key", "value")
 
 	got := recorder.Result()
 
@@ -41,7 +41,7 @@ func TestLogger_EventBasic(t *testing.T) {
 	}
 }
 
-func TestLogger_EventAttrBasic(t *testing.T) {
+func TestLogger_AttrBasic(t *testing.T) {
 	recorder := logtest.NewRecorder()
 	logger := New(Options{
 		Provider: recorder,
@@ -50,12 +50,12 @@ func TestLogger_EventAttrBasic(t *testing.T) {
 
 	ctx := t.Context()
 
-	logger.TraceEventAttr(ctx, "trace.event", log.String("key", "value"))
-	logger.DebugEventAttr(ctx, "debug.event", log.String("key", "value"))
-	logger.InfoEventAttr(ctx, "info.event", log.String("key", "value"))
-	logger.WarnEventAttr(ctx, "warn.event", log.String("key", "value"))
-	logger.ErrorEventAttr(ctx, "error.event", log.String("key", "value"))
-	logger.EventAttr(ctx, log.SeverityInfo, "test.event", log.String("key", "value"))
+	logger.TraceAttr(ctx, "trace.event", log.String("key", "value"))
+	logger.DebugAttr(ctx, "debug.event", log.String("key", "value"))
+	logger.InfoAttr(ctx, "info.event", log.String("key", "value"))
+	logger.WarnAttr(ctx, "warn.event", log.String("key", "value"))
+	logger.ErrorAttr(ctx, "error.event", log.String("key", "value"))
+	logger.LogAttr(ctx, log.SeverityInfo, "test.event", log.String("key", "value"))
 
 	got := recorder.Result()
 
@@ -70,7 +70,7 @@ func TestLogger_EventAttrBasic(t *testing.T) {
 	}
 }
 
-func TestLogger_EventWith(t *testing.T) {
+func TestLogger_With(t *testing.T) {
 	recorder := logtest.NewRecorder()
 	logger := New(Options{
 		Provider: recorder,
@@ -80,7 +80,7 @@ func TestLogger_EventWith(t *testing.T) {
 	ctx := t.Context()
 
 	withLogger := logger.With("service", "api", "version", "1.0.0")
-	withLogger.InfoEvent(ctx, "test.event", "additional", "attr")
+	withLogger.Info(ctx, "test.event", "additional", "attr")
 
 	want := logtest.Recording{
 		logtest.Scope{
@@ -107,7 +107,7 @@ func TestLogger_EventWith(t *testing.T) {
 	}))
 }
 
-func TestLogger_EventWithAttr(t *testing.T) {
+func TestLogger_WithAttr(t *testing.T) {
 	recorder := logtest.NewRecorder()
 	logger := New(Options{
 		Provider: recorder,
@@ -117,7 +117,7 @@ func TestLogger_EventWithAttr(t *testing.T) {
 	ctx := t.Context()
 
 	withLogger := logger.WithAttr(log.String("service", "api"), log.String("version", "1.0.0"))
-	withLogger.InfoEventAttr(ctx, "test.event", log.String("request_id", "req-123"))
+	withLogger.InfoAttr(ctx, "test.event", log.String("request_id", "req-123"))
 
 	want := logtest.Recording{
 		logtest.Scope{
@@ -156,7 +156,7 @@ func TestLogger_ChainedWith(t *testing.T) {
 	// Chain multiple With calls
 	logger1 := logger.With("service", "api")
 	logger2 := logger1.With("version", "1.0.0")
-	logger2.InfoEvent(ctx, "test.event")
+	logger2.Info(ctx, "test.event")
 
 	want := logtest.Recording{
 		logtest.Scope{
@@ -194,7 +194,7 @@ func TestLogger_ChainedWithAttr(t *testing.T) {
 	// Chain multiple WithAttr calls
 	logger1 := logger.WithAttr(log.String("service", "api"))
 	logger2 := logger1.WithAttr(log.String("version", "1.0.0"))
-	logger2.InfoEventAttr(ctx, "test.event")
+	logger2.InfoAttr(ctx, "test.event")
 
 	want := logtest.Recording{
 		logtest.Scope{
@@ -220,7 +220,7 @@ func TestLogger_ChainedWithAttr(t *testing.T) {
 	}))
 }
 
-func TestLogger_EventEnabled(t *testing.T) {
+func TestLogger_Enabled(t *testing.T) {
 	recorder := logtest.NewRecorder()
 	logger := New(Options{
 		Provider: recorder,
@@ -229,19 +229,19 @@ func TestLogger_EventEnabled(t *testing.T) {
 
 	ctx := t.Context()
 
-	if !logger.TraceEventEnabled(ctx, "trace.event") {
+	if !logger.TraceEnabled(ctx, "trace.event") {
 		t.Error("expected trace event to be enabled")
 	}
-	if !logger.DebugEventEnabled(ctx, "debug.event") {
+	if !logger.DebugEnabled(ctx, "debug.event") {
 		t.Error("expected debug event to be enabled")
 	}
-	if !logger.InfoEventEnabled(ctx, "info.event") {
+	if !logger.InfoEnabled(ctx, "info.event") {
 		t.Error("expected info event to be enabled")
 	}
-	if !logger.WarnEventEnabled(ctx, "warn.event") {
+	if !logger.WarnEnabled(ctx, "warn.event") {
 		t.Error("expected warn event to be enabled")
 	}
-	if !logger.ErrorEventEnabled(ctx, "error.event") {
+	if !logger.ErrorEnabled(ctx, "error.event") {
 		t.Error("expected error event to be enabled")
 	}
 }
@@ -262,7 +262,7 @@ func TestNew_WithOptions(t *testing.T) {
 	})
 
 	ctx := t.Context()
-	logger.InfoEvent(ctx, "test.event", "key", "value")
+	logger.Info(ctx, "test.event", "key", "value")
 
 	got := recorder.Result()
 

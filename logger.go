@@ -34,10 +34,10 @@ type Options struct {
 // OpenTelemetry Logs API as the backend.
 //
 // The Logger offers two styles of API:
-//   - Argument-based methods (TraceEvent, DebugEvent, InfoEvent, WarnEvent, ErrorEvent,
-//     Event, With) that accept alternating key-value pairs as ...any arguments
-//   - Attribute-based methods (TraceEventAttr, DebugEventAttr, InfoEventAttr, WarnEventAttr,
-//     ErrorEventAttr, EventAttr, WithAttr) that accept strongly-typed log.KeyValue attributes
+//   - Argument-based methods (Trace, Debug, Info, Warn, Error,
+//     Log, With) that accept alternating key-value pairs as ...any arguments
+//   - Attribute-based methods (TraceAttr, DebugAttr, InfoAttr, WarnAttr,
+//     ErrorAttr, LogAttr, WithAttr) that accept strongly-typed log.KeyValue attributes
 //
 // The attribute-based methods provide better type safety and can offer better
 // performance in some scenarios, particularly when used with WithAttr for
@@ -143,104 +143,104 @@ func New(options Options) *Logger {
 	}
 }
 
-// TraceEventEnabled reports whether the logger emits trace-level event log records for the specified event name.
-func (l *Logger) TraceEventEnabled(ctx context.Context, eventName string) bool {
+// TraceEnabled reports whether the logger emits trace-level event log records for the specified event name.
+func (l *Logger) TraceEnabled(ctx context.Context, eventName string) bool {
 	return l.Enabled(ctx, log.EnabledParameters{
 		Severity:  log.SeverityTrace,
 		EventName: eventName,
 	})
 }
 
-// DebugEventEnabled reports whether the logger emits debug-level event log records for the specified event name.
-func (l *Logger) DebugEventEnabled(ctx context.Context, eventName string) bool {
+// DebugEnabled reports whether the logger emits debug-level event log records for the specified event name.
+func (l *Logger) DebugEnabled(ctx context.Context, eventName string) bool {
 	return l.Enabled(ctx, log.EnabledParameters{
 		Severity:  log.SeverityDebug,
 		EventName: eventName,
 	})
 }
 
-// InfoEventEnabled reports whether the logger emits info-level event log records for the specified event name.
-func (l *Logger) InfoEventEnabled(ctx context.Context, eventName string) bool {
+// InfoEnabled reports whether the logger emits info-level event log records for the specified event name.
+func (l *Logger) InfoEnabled(ctx context.Context, eventName string) bool {
 	return l.Enabled(ctx, log.EnabledParameters{
 		Severity:  log.SeverityInfo,
 		EventName: eventName,
 	})
 }
 
-// WarnEventEnabled reports whether the logger emits warn-level event log records for the specified event name.
-func (l *Logger) WarnEventEnabled(ctx context.Context, eventName string) bool {
+// WarnEnabled reports whether the logger emits warn-level event log records for the specified event name.
+func (l *Logger) WarnEnabled(ctx context.Context, eventName string) bool {
 	return l.Enabled(ctx, log.EnabledParameters{
 		Severity:  log.SeverityWarn,
 		EventName: eventName,
 	})
 }
 
-// ErrorEventEnabled reports whether the logger emits error-level event log records for the specified event name.
-func (l *Logger) ErrorEventEnabled(ctx context.Context, eventName string) bool {
+// ErrorEnabled reports whether the logger emits error-level event log records for the specified event name.
+func (l *Logger) ErrorEnabled(ctx context.Context, eventName string) bool {
 	return l.Enabled(ctx, log.EnabledParameters{
 		Severity:  log.SeverityError,
 		EventName: eventName,
 	})
 }
 
-// TraceEvent logs a trace-level event with the specified name and optional key-value pairs.
-func (l *Logger) TraceEvent(ctx context.Context, name string, args ...any) {
-	l.logEvent(ctx, log.SeverityTrace, name, args)
+// Trace logs a trace-level event with the specified name and optional key-value pairs.
+func (l *Logger) Trace(ctx context.Context, eventName string, args ...any) {
+	l.logEvent(ctx, log.SeverityTrace, eventName, args)
 }
 
-// DebugEvent logs a debug-level event with the specified name and optional key-value pairs.
-func (l *Logger) DebugEvent(ctx context.Context, name string, args ...any) {
-	l.logEvent(ctx, log.SeverityDebug, name, args)
+// Debug logs a debug-level event with the specified name and optional key-value pairs.
+func (l *Logger) Debug(ctx context.Context, eventName string, args ...any) {
+	l.logEvent(ctx, log.SeverityDebug, eventName, args)
 }
 
-// InfoEvent logs an info-level event with the specified name and optional key-value pairs.
-func (l *Logger) InfoEvent(ctx context.Context, name string, args ...any) {
-	l.logEvent(ctx, log.SeverityInfo, name, args)
+// Info logs an info-level event with the specified name and optional key-value pairs.
+func (l *Logger) Info(ctx context.Context, eventName string, args ...any) {
+	l.logEvent(ctx, log.SeverityInfo, eventName, args)
 }
 
-// WarnEvent logs a warn-level event with the specified name and optional key-value pairs.
-func (l *Logger) WarnEvent(ctx context.Context, name string, args ...any) {
-	l.logEvent(ctx, log.SeverityWarn, name, args)
+// Warn logs a warn-level event with the specified name and optional key-value pairs.
+func (l *Logger) Warn(ctx context.Context, eventName string, args ...any) {
+	l.logEvent(ctx, log.SeverityWarn, eventName, args)
 }
 
-// ErrorEvent logs an error-level event with the specified name and optional key-value pairs.
-func (l *Logger) ErrorEvent(ctx context.Context, name string, args ...any) {
-	l.logEvent(ctx, log.SeverityError, name, args)
+// Error logs an error-level event with the specified name and optional key-value pairs.
+func (l *Logger) Error(ctx context.Context, eventName string, args ...any) {
+	l.logEvent(ctx, log.SeverityError, eventName, args)
 }
 
-// Event logs an event at the specified level with the specified name and optional key-value pairs.
-func (l *Logger) Event(ctx context.Context, level log.Severity, name string, args ...any) {
-	l.logEvent(ctx, level, name, args)
+// Log logs an event at the specified level with the specified name and optional key-value pairs.
+func (l *Logger) Log(ctx context.Context, level log.Severity, eventName string, args ...any) {
+	l.logEvent(ctx, level, eventName, args)
 }
 
-// TraceEventAttr logs a trace-level event with the specified name and the provided attributes.
-func (l *Logger) TraceEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
-	l.logEventAttr(ctx, log.SeverityTrace, name, attrs)
+// TraceAttr logs a trace-level event with the specified name and the provided attributes.
+func (l *Logger) TraceAttr(ctx context.Context, eventName string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityTrace, eventName, attrs)
 }
 
-// DebugEventAttr logs a debug-level event with the specified name and the provided attributes.
-func (l *Logger) DebugEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
-	l.logEventAttr(ctx, log.SeverityDebug, name, attrs)
+// DebugAttr logs a debug-level event with the specified name and the provided attributes.
+func (l *Logger) DebugAttr(ctx context.Context, eventName string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityDebug, eventName, attrs)
 }
 
-// InfoEventAttr logs an info-level event with the specified name and the provided attributes.
-func (l *Logger) InfoEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
-	l.logEventAttr(ctx, log.SeverityInfo, name, attrs)
+// InfoAttr logs an info-level event with the specified name and the provided attributes.
+func (l *Logger) InfoAttr(ctx context.Context, eventName string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityInfo, eventName, attrs)
 }
 
-// WarnEventAttr logs a warn-level event with the specified name and the provided attributes.
-func (l *Logger) WarnEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
-	l.logEventAttr(ctx, log.SeverityWarn, name, attrs)
+// WarnAttr logs a warn-level event with the specified name and the provided attributes.
+func (l *Logger) WarnAttr(ctx context.Context, eventName string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityWarn, eventName, attrs)
 }
 
-// ErrorEventAttr logs an error-level event with the specified name and the provided attributes.
-func (l *Logger) ErrorEventAttr(ctx context.Context, name string, attrs ...log.KeyValue) {
-	l.logEventAttr(ctx, log.SeverityError, name, attrs)
+// ErrorAttr logs an error-level event with the specified name and the provided attributes.
+func (l *Logger) ErrorAttr(ctx context.Context, eventName string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, log.SeverityError, eventName, attrs)
 }
 
-// EventAttr logs an event at the specified level with the specified name and the provided attributes.
-func (l *Logger) EventAttr(ctx context.Context, level log.Severity, name string, attrs ...log.KeyValue) {
-	l.logEventAttr(ctx, level, name, attrs)
+// LogAttr logs an event at the specified level with the specified name and the provided attributes.
+func (l *Logger) LogAttr(ctx context.Context, level log.Severity, eventName string, attrs ...log.KeyValue) {
+	l.logEventAttr(ctx, level, eventName, attrs)
 }
 
 // WithAttr returns a new Logger that includes the given attributes in all log records.
@@ -323,9 +323,9 @@ func (l *Logger) addKeyValueAttributes(record *log.Record, attrs []log.KeyValue)
 }
 
 // logEvent is the internal event logging method that handles the common event logging logic.
-func (l *Logger) logEvent(ctx context.Context, level log.Severity, name string, args []any) {
+func (l *Logger) logEvent(ctx context.Context, level log.Severity, eventName string, args []any) {
 	var record log.Record
-	record.SetEventName(name)
+	record.SetEventName(eventName)
 	record.SetTimestamp(time.Now())
 	record.SetSeverity(level)
 
@@ -334,9 +334,9 @@ func (l *Logger) logEvent(ctx context.Context, level log.Severity, name string, 
 }
 
 // logEventAttr is the internal event logging method that handles event logging with log.KeyValue attributes.
-func (l *Logger) logEventAttr(ctx context.Context, level log.Severity, name string, attrs []log.KeyValue) {
+func (l *Logger) logEventAttr(ctx context.Context, level log.Severity, eventName string, attrs []log.KeyValue) {
 	var record log.Record
-	record.SetEventName(name)
+	record.SetEventName(eventName)
 	record.SetTimestamp(time.Now())
 	record.SetSeverity(level)
 
