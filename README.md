@@ -1,4 +1,4 @@
-# olog - OpenTelemetry Logging Facade
+# olog - OpenTelemetry Ergonomic Logs API
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/pellared/olog.svg)](https://pkg.go.dev/github.com/pellared/olog)
 [![Keep a Changelog](https://img.shields.io/badge/changelog-Keep%20a%20Changelog-%23E05735)](CHANGELOG.md)

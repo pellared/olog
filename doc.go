@@ -1,5 +1,5 @@
 /*
-Package olog provides an ergonomic OpenTelemetry Logging Facade.
+Package olog provides OpenTelemetry Ergonomic Logs API.
 
 This package addresses the usability concerns with the OpenTelemetry Logs API
 by providing a user-friendly frontend interface while using the OpenTelemetry
