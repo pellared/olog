@@ -88,13 +88,15 @@ The Attr variants are recommended for production use as they provide:
 
   - Better IDE support: autocompletion and type checking
 
-    // Variadic - convenient but less performant
-    logger.Info(ctx, "user.created", "user_id", 12345, "email", "user@example.com")
+Examples:
 
-    // Attr - more performant and type-safe
-    logger.InfoAttr(ctx, "user.created",
-    log.Int("user_id", 12345),
-    log.String("email", "user@example.com"))
+	// Variadic - convenient but less performant
+	logger.Info(ctx, "user.created", "user_id", 12345, "email", "user@example.com")
+
+	// Attr - more performant and type-safe
+	logger.InfoAttr(ctx, "user.created",
+	log.Int("user_id", 12345),
+	log.String("email", "user@example.com"))
 
 # Performance
 
