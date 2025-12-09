@@ -8,6 +8,26 @@ as well as to [Module version numbering](https://go.dev/doc/modules/version-numb
 
 ## [Unreleased](https://github.com/pellared/olog/compare/v0.0.3...HEAD)
 
+### Remove
+
+- **BREAKING:** Remove `Logger.Trace(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.TraceAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.TraceEnabled(ctx context.Context) bool`. Use `TraceEventEnabled` instead.
+- **BREAKING:** Remove `Logger.Debug(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.DebugAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.DebugEnabled(ctx context.Context) bool`. Use `DebugEventEnabled` instead.
+- **BREAKING:** Remove `Logger.Info(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.InfoAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.InfoEnabled(ctx context.Context) bool`. Use `InfoEventEnabled` instead.
+- **BREAKING:** Remove `Logger.Warn(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.WarnAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.WarnEnabled(ctx context.Context) bool`. Use `WarnEventEnabled` instead.
+- **BREAKING:** Remove `Logger.Error(ctx context.Context, msg string, args ...any)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.ErrorAttr(ctx context.Context, msg string, attrs ...log.KeyValue)`. Use event-based logging instead.
+- **BREAKING:** Remove `Logger.ErrorEnabled(ctx context.Context) bool`. Use `ErrorEventEnabled` instead.
+- **BREAKING:** Remove `Logger.Log(ctx context.Context, level log.Severity, msg string, args ...any)`. Use `Event` instead.
+- **BREAKING:** Remove `Logger.LogAttr(ctx context.Context, level log.Severity, msg string, attrs ...log.KeyValue)`. Use `EventAttr` instead.
+
 ## [0.0.3](https://github.com/pellared/olog/releases/tag/v0.0.3) - 2025-09-30
 
 ### Added

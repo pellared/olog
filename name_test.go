@@ -22,7 +22,7 @@ func TestLogger_DefaultName(t *testing.T) {
 	ctx := t.Context()
 
 	// Test Info logging
-	logger.Info(ctx, "test info message", "key1", "value1", "key2", 42)
+	logger.InfoEvent(ctx, "test.info", "key1", "value1", "key2", 42)
 
 	// Verify using logtest.AssertEqual with Recording
 	want := logtest.Recording{
@@ -30,9 +30,9 @@ func TestLogger_DefaultName(t *testing.T) {
 			Name: "github.com/pellared/olog_test",
 		}: {
 			logtest.Record{
-				Context:  ctx,
-				Severity: log.SeverityInfo,
-				Body:     log.StringValue("test info message"),
+				Context:   ctx,
+				Severity:  log.SeverityInfo,
+				EventName: "test.info",
 				Attributes: []log.KeyValue{
 					log.String("key1", "value1"),
 					log.Int64("key2", 42),
