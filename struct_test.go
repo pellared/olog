@@ -40,7 +40,7 @@ func TestLogger_StructBehavior(t *testing.T) {
 	}
 
 	// Test logging doesn't panic
-	logger.Info(ctx, "test")
+	logger.Info(ctx, "test.event")
 	withLogger.Info(ctx, "test.event", "with_attr", "value")
 	chainedLogger.Info(ctx, "test.chained")
 }
